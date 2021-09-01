@@ -1,0 +1,61 @@
+body {
+	font-size: 14pt;
+}
+
+a.strong {
+	font-weight: bold;
+}
+
+a .print-link {
+	display: none;
+}
+
+.content {
+	max-width: 17cm;
+	min-width: 5cm;
+	margin-right: auto;
+	margin-left: auto;
+	padding: 6pt;
+	//box-sizing: border-box;
+	//clear: both;
+}
+
+ul {
+	padding-left:1.5em;
+}
+
+li {
+	margin-top: 1em;
+}
+
+li.priority-2 {
+	opacity: 0.65;
+}
+
+li.priority-3 {
+	opacity: 0.45;
+}
+
+li.priority-4 {
+	opacity: 0.25;
+}
+
+li li {
+	margin-top: 0;
+}
+
+h2 {
+	text-align: center;
+}
+
+.toolbar {
+	text-align: center;
+	margin: 1em;
+	padding: 0;
+	list-style-type: none;
+}
+
+.toolbar>li {	
+	display: inline-block;
+	margin: 0;
+}
