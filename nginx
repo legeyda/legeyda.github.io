@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<meta name="ac-discovery" content="legeyda.com/centos7-dev https://github.com/legeyda/centos7-dev-aci/releases/download/v{version}/legeyda_com_centos7_dev-{version}-{os}-{arch}.{ext}">
+		<meta name="ac-discovery" content="legeyda.com/centos7     http://bitbucket.org/legeyda/centos7-aci/downloads/centos7-{version}-{os}-{arch}.{ext}">
+		<meta name="ac-discovery" content="legeyda.com/rustc       http://bitbucket.org/legeyda/rustc-aci/downloads/rustc-{version}-{os}-{arch}.{ext}">
+		<meta name="ac-discovery" content="legeyda.com/anyorigin   http://bitbucket.org/legeyda/anyorigin/downloads/anyorigin-{version}-{os}-{arch}.{ext}">
+		<meta name="ac-discovery" content="legeyda.com/nginx       http://bitbucket.org/legeyda/nginx-aci/downloads/nginx-{version}-{os}-{arch}.{ext}">
+
+		<meta name="ac-discovery-pubkeys" content="legeyda.com https://legeyda.com/pubkeys.gpg">
+		<title>rkt images</title>
+	</head>
+	<body>
+		<p>rkt images:</p>
+		<ul>
+			<li>base centos 7 image<a href="https://bitbucket.org/legeyda/centos-aci">legeyda.com/centos7</a></li>
+			<li>rustc&amp;cargo compilers<a href="https://bitbucket.org/legeyda/rustc-aci">legeyda.com/centos</a></li>
+			<li>nginx <a href="https://bitbucket.org/legeyda/nginx-aci">legeyda.com/centos</a></li>
+			<li>anyorigin proxy <a href="https://bitbucket.org/legeyda/anyorigin">legeyda.com/centos</a></li>
+			<li>centos 7 with dev tools installed <a href="https://github.com/legeyda/centos7-dev-aci">legeyda.com/centos7-dev</a></li>
+		</ul>
+	</body>
+</html>

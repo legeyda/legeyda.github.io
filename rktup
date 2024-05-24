@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+# you may try to configure those variables
+RKT_VERSION=1.20.0
+RKT_PACKAGE_SIZE=95333129
+ACBUILD_VERSION=0.4.0
+ACBUILD_PACKAGE_SIZE=11864872
+# DESTDIR is supported
+
+## get file size. usage: getsize file.txt
+function getsize() {
+	stat --printf='%s' "$1"
+}
+
+## downloads URl to file OUTPUT 
+## download is skipped if file SIZE is supplied and file exists and size matches
+function download() {
+	URL=$1
+	OUTPUT=$2
+	SIZE=$3
+
+	if [ -n "$SIZE" -a -f "$OUTPUT" ]; then
+		if [ $(getsize "$OUTPUT") == $SIZE ]; then
+			echo "$OUTPUT already downloaded, size matched"
+			return 0
+		else
+			echo "$OUTPUT size differs redownloading from $URL..."
+		fi
+	fi
+
+	mkdir -p $(dirname "$OUTPUT")
+	if which curl; then
+		curl --location --output "$OUTPUT" "$URL"
+	elif which wget; then
+		wget "--output-document=$OUTPUT" "$URL"
+	else
+		echo "unable to download $1 neither wget nor curl found"
+		exit 1
+	fi
+
+	if [ -n "$SIZE" ]; then
+		if [ $(getsize "$OUTPUT") != $SIZE ]; then
+			echo "size differs after download, it was unsuccessfull"
+			return 1
+		fi		
+	fi
+}
+
+
+
+function install-rkt() {
+	local CACHE="$CACHE/rkt"
+	local URL="https://github.com/coreos/rkt/releases/download/v$RKT_VERSION/rkt-v$RKT_VERSION.tar.gz"
+	local DIR="$CACHE/rkt-v$RKT_VERSION"
+	local PACKAGE="$DIR.tar.gz"
+
+	echo 'downloading rkt'
+	download "$URL" "$PACKAGE" "$RKT_PACKAGE_SIZE" || exit 1
+
+	echo "unpacking rkt..."
+	mkdir -p "$DIR"
+	tar xzf "$PACKAGE" --directory "$CACHE"
+	touch $CACHE/unpack-flag
+
+	echo 'installing rkt...'
+	mkdir -p "${DESTDIR}/usr/bin"
+	cp "$DIR/rkt" "${DESTDIR}/usr/bin/rkt"
+	chmod ugo+x "${DESTDIR}/usr/bin/rkt"
+
+	# images
+	IMAGE_DIR="${DESTDIR}/usr/lib/rkt/stage1-images"
+	mkdir -p "$IMAGE_DIR"
+	for ACI in stage1-coreos.aci stage1-fly.aci stage1-kvm.aci; do
+		cp "$DIR/$ACI" "$IMAGE_DIR/$ACI"
+	done
+
+	mkdir -p "${DESTDIR}/var/lib/rkt"
+	if [ $(id -u) == 0 ]; then
+		echo 'configuring system...'
+		groupadd rkt || true
+		bash "$DIR/scripts/setup-data-dir.sh" "${DESTDIR}/var/lib/rkt"
+	fi
+	echo rkt installed
+}
+
+
+
+function install-acbuild() {
+
+	local CACHE="$CACHE/acbuild"
+	local URL=https://github.com/appc/acbuild/releases/download/v${ACBUILD_VERSION}/acbuild-v${ACBUILD_VERSION}.tar.gz
+	local DIR="${CACHE}/acbuild-v${ACBUILD_VERSION}"
+	local PACKAGE="${DIR}.tar.gz"
+
+	echo 'downloading acbuild...'
+	download "$URL" "$PACKAGE" "$ACBUILD_PACKAGE_SIZE" || exit 1
+
+	echo 'unpacking acbuild...'
+	mkdir -p "$DIR"
+	tar xzf "$PACKAGE" --directory "$CACHE"
+
+	echo 'installing acbuild...'
+	cp "$DIR/acbuild" "${DESTDIR}/usr/bin/acbuild"
+	chmod ugo+x "${DESTDIR}/usr/bin/acbuild"
+
+	echo acbuild installed
+}
+
+
+function install-uninstaller() {
+	SCRIPT="$DESTDIR/usr/lib/rkt/uninstall"
+	mkdir -p "${DESTDIR}/usr/lib/rkt"
+	echo "#!/usr/bin/env bash
+	rm -rf /usr/bin/rkt /usr/bin/acbuild /usr/lib/rkt /var/lib/rkt
+" > "$SCRIPT"
+	chmod ugo+x "$SCRIPT"
+	echo "created uninstall script at $SCRIPT"
+}
+
+
+# find temp
+test -z "$TEMP" && TEMP="$TMP"
+test -z "$TEMP" && TEMP="/tmp"
+
+
+# cache 
+export CACHE="$TEMP/rktup-cache"
+mkdir -p "$CACHE" || (
+	echo "error creating $CACHE"
+	exit 1
+)
+
+
+
+
+install-rkt
+install-acbuild
+install-uninstaller
